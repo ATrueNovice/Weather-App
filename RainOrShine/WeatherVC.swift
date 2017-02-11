@@ -15,6 +15,9 @@ class WeatherVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
     @IBOutlet weak var currentTypeLbl: UILabel!
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var currentTempLbl: UILabel!
+
+    // This verariable creates an empty class of current weather were we can put functions in.
+    var currentWeather = CurrentWeather()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,7 +25,11 @@ class WeatherVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
         tableView.delegate = self
         tableView.dataSource = self
 
-        print(currentWeatherURL)
+        currentWeather.downloadWeatherDetails {
+            //setup UI to load downloaded weather details.
+        }
+
+
     }
 
     func numberOfSections(in tableView: UITableView) -> Int {

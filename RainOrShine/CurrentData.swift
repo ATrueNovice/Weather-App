@@ -17,7 +17,7 @@ class CurrentWeather {
     private var _currentTemp: Double!
 
 
-    //Error Handling
+    //JSON input 
     var citynName: String {
         if _cityName == nil {
             _cityName = ""
@@ -52,10 +52,17 @@ class CurrentWeather {
         return _currentTemp
     }
 
-
+    //This function tells our program that we are done downloading data as well as where to download from.
     func downloadWeatherDetails (completed: DownloadComplete) {
+
+        //CURRENT_WEATHER_URL pulls from the constant files URL for the API
+        //This starts the Get request to pull the data and tells the app what kind of data is coming in. JSON
+
+        Alamofire.request(CURRENT_WEATHER_URL).responseJSON { response in
+            let result = response.result
+            print(response)
         
     }
-
-    
+    completed()
+}
 }
