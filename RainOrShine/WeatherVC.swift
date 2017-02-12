@@ -15,6 +15,7 @@ class WeatherVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
     @IBOutlet weak var currentTypeLbl: UILabel!
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var currentTempLbl: UILabel!
+    @IBOutlet weak var currentWeatherImage: UIImageView!
 
     // This verariable creates an empty class of current weather were we can put functions in.
     var currentWeather = CurrentWeather()
@@ -25,8 +26,9 @@ class WeatherVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
         tableView.delegate = self
         tableView.dataSource = self
 
+        currentWeather = CurrentWeather()
         currentWeather.downloadWeatherDetails {
-            //setup UI to load downloaded weather details.
+            self.updateMainUI()
         }
 
 
@@ -46,6 +48,17 @@ class WeatherVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
         let cell = tableView.dequeueReusableCell(withIdentifier: "weatherCell", for: indexPath)
         return cell
     }
+
+
+
+    func updateMainUI() {
+        dateLbl.text = currentWeather.date
+        currentTempLbl.text = "\(currentWeather.currentTemp)"
+        currentTypeLbl.text = currentWeather.weatherType
+        currentLocationLbl.text = currentWeather.citynName
+        currentWeatherImage.image = UIImage(named: currentWeather.weatherType)
+    }
+
 
 
 }
