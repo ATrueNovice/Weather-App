@@ -7,9 +7,12 @@
 //
 
 import UIKit
+//Allows the app to find the device.
+import CoreLocation
 import Alamofire
 
-class WeatherVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class WeatherVC: UIViewController, UITableViewDataSource, UITableViewDelegate, CLLocationManagerDelegate {
+
 
     @IBOutlet weak var dateLbl: UILabel!
     @IBOutlet weak var currentLocationLbl: UILabel!
@@ -17,6 +20,13 @@ class WeatherVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var currentTempLbl: UILabel!
     @IBOutlet weak var currentWeatherImage: UIImageView!
+    @IBOutlet weak var viewBackground: UIView!
+
+    //Location Manager keeps track of where we are and updates the GPS Coordinates.
+
+    let locationmanager = CLLocationManager()
+    var currentLocation: CLLocation! //This variable will be passed location coordinates.
+
 
     // This verariable creates an empty class of current weather were we can put functions in.
     var currentWeather = CurrentWeather()
@@ -27,20 +37,46 @@ class WeatherVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        //This class will receive and publish info.
+        locationmanager.delegate = self
+        locationmanager.desiredAccuracy = kCLLocationAccuracyBest //Gives us the best accuracy on a device
+        locationmanager.requestWhenInUseAuthorization() //Asks to use your location.
+        locationmanager.startMonitoringSignificantLocationChanges() //keeps track of significant location changes.
+
         tableView.delegate = self
         tableView.dataSource = self
 
         //Calls the Current Weather from CurrentData class and allows it to be accessed in the weather VC
         currentWeather = CurrentWeather()
 
-        //Puts the details from the Download Forecast Function into the current weather variables.
-        currentWeather.downloadWeatherDetails {
 
-            //Downloads the JSON data from the Forecast URL
-            self.downloadForecastData{
-            self.updateMainUI()
-        }
+    }
+    //View Did Appear runs prior to the view did load. Before the view loads, we run the function asking for authorization. If we don't get the authorization, it starts off a loop that continually asks the user for the location.
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        locationAuthStatus()
+    }
+    //Asks
+    func locationAuthStatus() {
+        if CLLocationManager.authorizationStatus() == .authorizedWhenInUse {
+            currentLocation = locationmanager.location //Saves the location into the variable currentlocation
+        Location.sharedInstance.latitude = currentLocation.coordinate.latitude // grabs the long
+            Location.sharedInstance.longitude = currentLocation.coordinate.longitude // grabs the lat
 
+
+
+            //Puts the details from the Download Forecast Function into the current weather variables.
+            currentWeather.downloadWeatherDetails {
+
+                //Downloads the JSON data from the Forecast URL
+                self.downloadForecastData {
+                    self.updateMainUI()
+                }
+            }
+
+        } else {
+            locationmanager.requestWhenInUseAuthorization() //Asks for your location and give allow or deny
+            locationAuthStatus() //Asks again if we can be authorized. Once authorized it saves location to currentLocation.
         }
     }
 
@@ -103,6 +139,7 @@ class WeatherVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
         currentTypeLbl.text = currentWeather.weatherType
         currentLocationLbl.text = currentWeather.citynName
         currentWeatherImage.image = UIImage(named: currentWeather.weatherType)
+        
     }
 
 
